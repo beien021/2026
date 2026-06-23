@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>金權筆記 | 政治獻金透明化與選戰資本趨勢終端</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;700;800&family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans TC', sans-serif;
+            background-color: #040815;
+            color: #f1f5f9;
+            scroll-behavior: smooth;
+        }
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        /* Glassmorphism panel styling inspired by 2199142188798737768.jpeg */
+        .cyber-panel {
+            background: rgba(13, 22, 43, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(6, 182, 212, 0.12);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+        .cyber-panel:hover {
+            border-color: rgba(6, 182, 212, 0.35);
+            box-shadow: 0 16px 45px rgba(6, 182, 212, 0.15);
+        }
+        .text-glow-cyan {
+            text-shadow: 0 0 15px rgba(6, 182, 212, 0.5);
+        }
+        .text-glow-gold {
+            text-shadow: 0 0 15px rgba(245, 158, 11, 0.5);
+        }
+        /* Custom range slider styling matching buy vs rent simulation */
+        .slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 999px;
+            background: #111e36;
+            outline: none;
+        }
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #06b6d4;
+            cursor: pointer;
+            box-shadow: 0 0 12px rgba(6, 182, 212, 0.6);
+            transition: transform 0.1s ease;
+        }
+        .slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+        /* Active Tab indicator style */
+        .active-tab {
+            border-bottom: 2px solid #06b6d4;
+            color: #06b6d4;
+            text-shadow: 0 0 10px rgba(6, 182, 212, 0.3);
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-cyan-500 selection:text-slate-900">
+
+    <!-- Navigation Bar -->
+    <nav class="sticky top-0 z-50 bg-[#040815]/90 backdrop-blur-md border-b border-slate-900 px-6 py-4 flex justify-between items-center">
+        <div class="flex flex-col">
+            <strong class="text-lg md:text-xl font-black text-white tracking-widest flex items-center gap-2">
+                金權筆記 <span class="text-[10px] px-2 py-0.5 bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded font-normal font-mono">A05 PRO</span>
+            </strong>
+            <span class="text-[9px] text-slate-500 tracking-wider uppercase font-mono">Transparency.tw / Wealth & Power Intelligence</span>
+        </div>
+        <!-- Tab Selectors for seamless SPA navigation -->
+        <div class="flex gap-4 md:gap-8 text-xs md:text-sm font-bold text-slate-400">
+            <button onclick="navigate('landing')" id="tab-landing" class="active-tab py-2 transition">專題首頁</button>
+            <button onclick="navigate('directory')" id="tab-directory" class="py-2 transition">資料探索</button>
+            <button onclick="navigate('trends')" id="tab-trends" class="py-2 transition">資本模擬器</button>
+        </div>
+    </nav>
+
+    <!-- [SECTION 1] LANDING PAGE VIEW -->
+    <div id="view-landing" class="view-panel block">
+        <!-- Hero section with glowing narrative -->
+        <header class="min-h-[85vh] flex flex-col justify-center items-center px-6 relative overflow-hidden">
+            <div class="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[300px] bg-cyan-500/10 rounded-full blur-[140px] pointer-events-none"></div>
+            <div class="absolute bottom-1/4 right-10 w-[350px] h-[200px] bg-amber-500/5 rounded-full blur-[110px] pointer-events-none"></div>
+
+            <div class="max-w-4xl mx-auto text-center z-10 space-y-8 mt-12">
+                <span class="inline-flex items-center gap-2 px-3 py-1 bg-cyan-500/10 text-cyan-400 border border-cyan-500/25 text-xs font-bold rounded-full uppercase tracking-widest">
+                    <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+                    數據驅動 民主透明 | TRANSPARENCY.TW
+                </span>
+                
+                <h1 class="text-4xl md:text-7xl font-black text-white leading-tight tracking-tight">
+                    揭開政治帳本：<br>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-teal-400 to-amber-400">誰在買單你的代議士？</span>
+                </h1>
+                
+                <p class="text-slate-400 text-base md:text-lg max-w-3xl mx-auto font-light leading-relaxed">
+                    為什麼這件事無比重要？透明的政治資金是民主的防腐劑。我們深度解構立委完整獻金紀錄，透過動態數據，揭露建商、金控與地方勢力如何布局政治資本。
+                </p>
+
+                <!-- Search Input Main CTA -->
+                <div class="relative max-w-2xl mx-auto group">
+                    <div class="absolute -inset-1 bg-gradient-to-r from-cyan-500 to-amber-500 rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-1000"></div>
+                    <div class="relative flex bg-[#0d162b] border border-slate-800 rounded-xl p-2 shadow-2xl">
+                        <input type="text" id="searchInputLanding" placeholder="輸入候選人姓名、政黨、特定選區..." class="w-full bg-transparent py-3 px-4 text-white text-base focus:outline-none placeholder-slate-500 font-medium">
+                        <button onclick="handleSearchFromLanding()" class="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black px-8 py-3 rounded-lg transition duration-300 shadow-lg shadow-cyan-500/20 text-xs tracking-widest flex items-center gap-2">
+                            開始檢索
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Quick tags to lower entry barrier -->
+                <div class="text-xs text-slate-500 font-semibold uppercase tracking-wider">
+                    熱門快速查詢：
+                    <span onclick="triggerQuickTag('營造')" class="text-cyan-400 hover:text-cyan-300 underline cursor-pointer mx-1.5">#營造業捐贈</span>
+                    <span onclick="triggerQuickTag('花蓮')" class="text-cyan-400 hover:text-cyan-300 underline cursor-pointer mx-1.5">#花蓮縣</span>
+                    <span onclick="triggerQuickTag('王金平')" class="text-cyan-400 hover:text-cyan-300 underline cursor-pointer mx-1.5">#王金平</span>
+                </div>
+            </div>
+
+            <!-- Scroll indicator -->
+            <div class="absolute bottom-6 left-1/2 -translate-x-1/2 text-center z-10 pointer-events-none">
+                <span class="text-[9px] text-slate-600 uppercase tracking-[0.4em] block mb-2 font-mono">Explore Below</span>
+                <div class="w-5 h-8 border-2 border-slate-800 rounded-full mx-auto flex justify-center p-1">
+                    <div class="w-1 h-1 bg-cyan-400 rounded-full animate-bounce"></div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Editor's Picks (精選專題) -->
+        <section class="max-w-7xl mx-auto px-6 py-24 border-t border-slate-900">
+            <div class="mb-16">
+                <span class="text-xs font-mono text-cyan-400 tracking-widest uppercase">Special Report</span>
+                <h2 class="text-3xl font-black text-white mt-1">編輯精選：政商關係調查案例</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Case 1: Fu Kun-chi -->
+                <div onclick="selectAndViewCandidate('傅崐萁')" class="cyber-panel p-8 rounded-2xl cursor-pointer flex flex-col justify-between min-h-[300px]">
+                    <div>
+                        <span class="text-[9px] font-mono text-amber-500 border border-amber-500/30 px-2 py-0.5 rounded">CASE 01</span>
+                        <h3 class="text-2xl font-bold text-white mt-6 mb-3">東部地產開發與採礦利益</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">
+                            追蹤東部重量級立委的申報，發現高比例金流集中於地方營建及水泥採礦巨頭，揭開獨特的在地資本依賴。
+                        </p>
+                    </div>
+                    <div class="flex items-center text-cyan-400 text-xs font-bold gap-1 mt-6">
+                        解構傅崐萁深度金流 <span class="font-mono">→</span>
+                    </div>
+                </div>
+
+                <!-- Case 2: Ker Chien-ming -->
+                <div onclick="selectAndViewCandidate('柯建銘')" class="cyber-panel p-8 rounded-2xl cursor-pointer flex flex-col justify-between min-h-[300px]">
+                    <div>
+                        <span class="text-[9px] font-mono text-cyan-400 border border-cyan-400/30 px-2 py-0.5 rounded">CASE 02</span>
+                        <h3 class="text-2xl font-bold text-white mt-6 mb-3">都市重劃與跨黨派建商布陣</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">
+                            分析北部資深候選人的政治獻金來源，揭露大型建商集團如何透過多重子公司在不同陣營中進行均勻布局。
+                        </p>
+                    </div>
+                    <div class="flex items-center text-cyan-400 text-xs font-bold gap-1 mt-6">
+                        解構柯建銘深度金流 <span class="font-mono">→</span>
+                    </div>
+                </div>
+
+                <!-- Case 3: Simulation Shortcut -->
+                <div onclick="navigate('trends')" class="cyber-panel p-8 rounded-2xl cursor-pointer flex flex-col justify-between min-h-[300px] border-l-4 border-l-amber-500">
+                    <div>
+                        <span class="text-[9px] font-mono text-emerald-400 border border-emerald-400/30 px-2 py-0.5 rounded">SIMULATION TOOL</span>
+                        <h3 class="text-2xl font-bold text-white mt-6 mb-3">長期選戰資本增值趨勢</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">
+                            模擬在複利滾存模型下，不同比例的企業資金主導 vs. 群眾募資路線，在未來 5 屆選戰中累積的資本上漲趨勢。
+                        </p>
+                    </div>
+                    <div class="flex items-center text-amber-500 text-xs font-bold gap-1 mt-6">
+                        開啟上漲趨勢模擬器 <span class="font-mono">→</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- [SECTION 2] DATA DIRECTORY VIEW -->
+    <div id="view-directory" class="view-panel hidden max-w-7xl mx-auto px-6 py-12">
+        <!-- Quick Summary Metrics (關鍵數據總覽) -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
+            <div class="cyber-panel p-6 rounded-2xl">
+                <span class="text-slate-500 text-[10px] font-bold uppercase tracking-wider block">資料庫總分析筆數</span>
+                <h4 class="text-3xl font-mono font-black text-white mt-2">1,284 <span class="text-xs text-slate-500 font-normal">位</span></h4>
+            </div>
+            <div class="cyber-panel p-6 rounded-2xl border-l-2 border-l-cyan-500">
+                <span class="text-slate-500 text-[10px] font-bold uppercase tracking-wider block">本屆申報獻金總額</span>
+                <h4 class="text-3xl font-mono font-black text-cyan-400 text-glow-cyan mt-2">8.62 <span class="text-xs font-normal text-slate-500">億 NTD</span></h4>
+            </div>
+            <div class="cyber-panel p-6 rounded-2xl border-l-2 border-l-amber-500">
+                <span class="text-slate-500 text-[10px] font-bold uppercase tracking-wider block">營利事業平均捐贈比</span>
+                <h4 class="text-3xl font-mono font-black text-amber-500 text-glow-gold mt-2">55.03%</h4>
+            </div>
+            <div class="cyber-panel p-6 rounded-2xl">
+                <span class="text-slate-500 text-[10px] font-bold uppercase tracking-wider block">平均匿名小額捐贈比</span>
+                <h4 class="text-3xl font-mono font-black text-emerald-400 mt-2">14.2%</h4>
+            </div>
+        </div>
+
+        <!-- Toolbar for filtering and sorting -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-8 border-b border-slate-900 pb-8">
+            <div>
+                <h2 class="text-3xl font-black text-white tracking-tight">政治獻金數據探勘</h2>
+                <p class="text-slate-500 text-sm mt-1">輸入關鍵字過濾或依金流規模排序，點擊進入深度分析個人頁。</p>
+            </div>
+            <div class="flex flex-wrap gap-4 w-full md:w-auto">
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-[10px] text-slate-500 uppercase font-bold tracking-wider">政黨過濾</label>
+                    <select id="partyFilter" onchange="applyFilters()" class="bg-[#0b1224] border border-slate-800 text-slate-300 px-4 py-2.5 rounded-xl text-xs focus:outline-none focus:border-cyan-500">
+                        <option value="all">全部政黨</option>
+                        <option value="民主進步黨">民主進步黨</option>
+                        <option value="中國國民黨">中國國民黨</option>
+                        <option value="無黨籍">無黨籍</option>
+                    </select>
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-[10px] text-slate-500 uppercase font-bold tracking-wider">依總金額排序</label>
+                    <select id="sortOrder" onchange="applyFilters()" class="bg-[#0b1224] border border-slate-800 text-slate-300 px-4 py-2.5 rounded-xl text-xs focus:outline-none focus:border-cyan-500">
+                        <option value="desc">申報總額：高到低 ↓</option>
+                        <option value="asc">申報總額：低到高 ↑</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Bar specifically on Directory view -->
+        <div class="mb-8">
+            <input type="text" id="directorySearchInput" oninput="applyFilters()" placeholder="在此快速過濾：例如新竹、高雄、營造..." class="w-full bg-[#070d1a] border border-slate-800/80 py-4 px-6 rounded-xl text-white text-sm focus:outline-none focus:border-cyan-500 transition-all placeholder-slate-600">
+        </div>
+
+        <!-- Directory Cards Container -->
+        <div id="candidatesList" class="space-y-4">
+            <!-- Dynamic Injection -->
+        </div>
+
+        <!-- Loading / Pagination Indicator -->
+        <div class="text-center mt-12 py-6 border-t border-slate-900">
+            <span class="text-xs text-slate-500 uppercase tracking-[0.4em]">無感資料庫動態載入中 (Infinite Scroll ready)</span>
+        </div>
+    </div>
+
+    <!-- [SECTION 3] SIMULATOR & TREND VIEW -->
+    <div id="view-trends" class="view-panel hidden max-w-7xl mx-auto px-6 py-12">
+        <div class="mb-12">
+            <span class="text-xs font-mono text-amber-500 tracking-widest uppercase">Capital Multiplier Simulation</span>
+            <h2 class="text-4xl font-black text-white mt-1">選戰資本累積與上漲趨勢模擬</h2>
+            <p class="text-slate-500 text-sm mt-2 max-w-3xl">
+                參考理財精算模型，我們將選戰經費視為一種資本累積。本模擬器計算自備選戰金，在未來數屆選戰（每屆間隔 4 年）的複利滾存模型下，比較「企業巨額主導」與「群眾募資小額」兩種路線的長期資產增值趨勢。
+            </p>
+        </div>
+
+        <!-- Interactive Playground -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <!-- Left Controls (4/12) -->
+            <div class="lg:col-span-4 space-y-6">
+                <div class="cyber-panel p-6 rounded-2xl space-y-6">
+                    <h3 class="text-sm font-bold text-cyan-400 flex items-center gap-2 tracking-wider uppercase">
+                        <i class="fa-solid fa-sliders"></i> 選戰起步參數
+                    </h3>
+                    
+                    <div>
+                        <div class="flex justify-between text-xs mb-2">
+                            <span class="text-slate-300">初始選戰基金 (自備款)</span>
+                            <span id="initialCapitalLabel" class="font-mono font-bold text-cyan-400">NT$ 1,500 萬</span>
+                        </div>
+                        <input type="range" id="initialCapital" min="2000000" max="50000000" step="500000" value="15000000" class="slider" oninput="calculateSimulatorTrend()">
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-xs mb-2">
+                            <span class="text-slate-300">第一屆基本開銷 (每屆支出)</span>
+                            <span id="termExpensesLabel" class="font-mono font-bold text-amber-500">NT$ 2,000 萬</span>
+                        </div>
+                        <input type="range" id="termExpenses" min="1000000" max="40000000" step="500000" value="20000000" class="slider slider-gold" oninput="calculateSimulatorTrend()">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 pt-2">
+                        <div>
+                            <label class="block text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-2">選戰物價漲幅/年 (%)</label>
+                            <input type="number" id="inflationRate" step="0.1" value="2.5" class="w-full p-3 bg-slate-900/80 border border-slate-800 rounded-xl text-xs focus:outline-none focus:border-cyan-500 font-mono text-white" oninput="calculateSimulatorTrend()">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-2">預測模擬屆次 (屆)</label>
+                            <select id="simulateTerms" class="w-full p-3 bg-slate-900/80 border border-slate-800 rounded-xl text-xs focus:outline-none focus:border-cyan-500 text-white" onchange="calculateSimulatorTrend()">
+                                <option value="3">3 屆 (12年)</option>
+                                <option value="5" selected>5 屆 (20年)</option>
+                                <option value="8">8 屆 (32年)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="cyber-panel p-6 rounded-2xl space-y-6">
+                    <h3 class="text-sm font-bold text-amber-400 flex items-center gap-2 tracking-wider uppercase">
+                        <i class="fa-solid fa-chart-line"></i> 路線收益預期
+                    </h3>
+
+                    <div>
+                        <div class="flex justify-between text-xs mb-2">
+                            <span class="text-slate-300">路線 A: 企業捐贈年增率</span>
+                            <span id="corporateGrowthLabel" class="font-mono font-bold text-amber-500">8.0%</span>
+                        </div>
+                        <input type="range" id="corporateGrowth" min="0" max="25" step="0.5" value="8.0" class="slider slider-gold" oninput="calculateSimulatorTrend()">
+                        <span class="text-[9px] text-slate-500 mt-1 block">代表建商重劃與地方營建融資之年複合增值。</span>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-xs mb-2">
+                            <span class="text-slate-300">路線 B: 小額募資年增率</span>
+                            <span id="crowdfundingGrowthLabel" class="font-mono font-bold text-cyan-400">4.5%</span>
+                        </div>
+                        <input type="range" id="crowdfundingGrowth" min="0" max="20" step="0.5" value="4.5" class="slider" oninput="calculateSimulatorTrend()">
+                        <span class="text-[9px] text-slate-500 mt-1 block">代表獨立候選人藉由民意支持度增長小額募款之潛能。</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Output & Trends Visualization Chart (8/12) -->
+            <div class="lg:col-span-8 space-y-6">
+                <!-- Trend Chart panel -->
+                <div class="cyber-panel p-6 rounded-2xl">
+                    <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-6">長期選戰累積資本增值趨勢</h3>
+                    <div class="h-[400px]">
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Simulation End Results Summary -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Route A Results -->
+                    <div class="cyber-panel p-6 rounded-2xl border-t-4 border-t-amber-500">
+                        <span class="text-amber-500 text-[10px] font-mono tracking-widest uppercase block mb-1">ROUTE A STATUS</span>
+                        <h4 class="text-xl font-bold text-white mb-4">企業主導型終點資產</h4>
+                        <div class="space-y-3 text-sm">
+                            <div class="flex justify-between text-slate-400">期末企業累計資金: <span id="finalCorpFund" class="font-mono text-white font-bold">-</span></div>
+                            <div class="flex justify-between text-slate-400">期末選戰累計支出: <span id="finalCorpExpense" class="font-mono text-slate-500">-</span></div>
+                            <div class="border-t border-slate-800 pt-3 mt-3 flex justify-between text-base font-bold text-white">
+                                累計淨政商籌碼: <span id="corpFinalNet" class="font-mono text-amber-400 text-glow-gold">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Route B Results -->
+                    <div class="cyber-panel p-6 rounded-2xl border-t-4 border-t-cyan-500">
+                        <span class="text-cyan-400 text-[10px] font-mono tracking-widest uppercase block mb-1">ROUTE B STATUS</span>
+                        <h4 class="text-xl font-bold text-white mb-4">群眾募資型終點資產</h4>
+                        <div class="space-y-3 text-sm">
+                            <div class="flex justify-between text-slate-400">期末群眾累計資金: <span id="finalCrowdFund" class="font-mono text-white font-bold">-</span></div>
+                            <div class="flex justify-between text-slate-400">期末選戰累計支出: <span id="finalCrowdExpense" class="font-mono text-slate-500">-</span></div>
+                            <div class="border-t border-slate-800 pt-3 mt-3 flex justify-between text-base font-bold text-white">
+                                累計純民意淨籌碼: <span id="crowdFinalNet" class="font-mono text-cyan-400 text-glow-cyan">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- [SECTION 4] CANDIDATE PROFILE DETAILS VIEW -->
+    <div id="view-candidate" class="view-panel hidden max-w-7xl mx-auto px-6 py-12">
+        <button onclick="navigate('directory')" class="text-xs text-slate-500 hover:text-cyan-400 uppercase tracking-widest mb-12 flex items-center gap-2 transition">
+            <span class="font-mono">←</span> 返回資料庫目錄
+        </button>
+
+        <!-- Personal Header and Summary -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 mb-16">
+            <div class="lg:col-span-4 flex flex-col justify-between min-h-[220px]">
+                <div>
+                    <span id="activePartyBadge" class="inline-block px-3 py-1 bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 text-xs font-bold rounded-full mb-4">
+                        黨派
+                    </span>
+                    <h2 id="activeName" class="text-6xl font-black text-white tracking-tight">姓名</h2>
+                    <p id="activeDistrict" class="text-slate-500 text-sm mt-3 font-semibold font-mono">選區</p>
+                </div>
+                
+                <div class="mt-8 pt-8 border-t border-slate-900">
+                    <span class="text-slate-500 text-[10px] font-bold uppercase tracking-wider block">申報政治獻金總額</span>
+                    <h3 id="activeTotalRevenue" class="text-4xl font-mono font-black text-amber-500 text-glow-gold mt-2">$0</h3>
+                </div>
+            </div>
+
+            <!-- Three Dimensional Ranking Summary Cards -->
+            <div class="lg:col-span-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="cyber-panel p-8 rounded-2xl flex flex-col justify-between border-t-4 border-t-cyan-500">
+                    <div>
+                        <span class="text-slate-500 text-[10px] font-bold uppercase tracking-wider block mb-2">Total Ranking</span>
+                        <p class="text-xs text-slate-400">全台立委收入總排名</p>
+                    </div>
+                    <strong id="rankTotal" class="text-5xl font-mono font-black text-cyan-400 text-glow-cyan mt-6">#00</strong>
+                </div>
+
+                <div class="cyber-panel p-8 rounded-2xl flex flex-col justify-between border-t-4 border-t-slate-700">
+                    <div>
+                        <span class="text-slate-500 text-[10px] font-bold uppercase tracking-wider block mb-2">In Party</span>
+                        <p class="text-xs text-slate-400">所屬政黨內部收入排名</p>
+                    </div>
+                    <strong id="rankParty" class="text-5xl font-mono font-black text-white mt-6">#00</strong>
+                </div>
+
+                <div class="cyber-panel p-8 rounded-2xl flex flex-col justify-between border-t-4 border-t-slate-700">
+                    <div>
+                        <span class="text-slate-500 text-[10px] font-bold uppercase tracking-wider block mb-2">In District</span>
+                        <p class="text-xs text-slate-400">該選區內收入排名</p>
+                    </div>
+                    <strong id="rankDistrict" class="text-5xl font-mono font-black text-white mt-6">#00</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- Structural Breakdown and Verified Donor Lists -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <!-- Left Side: Source distribution progress indicators -->
+            <div class="lg:col-span-4 cyber-panel p-8 rounded-2xl">
+                <h3 class="text-sm font-bold text-white mb-6 border-b border-slate-900 pb-3 uppercase tracking-wider">捐款來源結構</h3>
+                <div class="space-y-6">
+                    <!-- Personal -->
+                    <div>
+                        <div class="flex justify-between text-xs mb-2 text-slate-400 font-bold">
+                            <span>個人捐款</span><span id="pShare">0.00%</span>
+                        </div>
+                        <div class="w-full bg-[#081024] h-2 rounded-full overflow-hidden">
+                            <div id="pShareBar" class="bg-cyan-500 h-full rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <!-- Corporate -->
+                    <div>
+                        <div class="flex justify-between text-xs mb-2 text-slate-400 font-bold">
+                            <span>營利事業捐款</span><span id="cShare">0.00%</span>
+                        </div>
+                        <div class="w-full bg-[#081024] h-2 rounded-full overflow-hidden">
+                            <div id="cShareBar" class="bg-amber-500 h-full rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <!-- Party -->
+                    <div>
+                        <div class="flex justify-between text-xs mb-2 text-slate-400 font-bold">
+                            <span>政黨捐贈</span><span id="partyShare">0.00%</span>
+                        </div>
+                        <div class="w-full bg-[#081024] h-2 rounded-full overflow-hidden">
+                            <div id="partyShareBar" class="bg-emerald-500 h-full rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <!-- Other / Anonymous -->
+                    <div>
+                        <div class="flex justify-between text-xs mb-2 text-slate-400 font-bold">
+                            <span>其它收入 / 匿名捐贈</span><span id="otherShare">0.00%</span>
+                        </div>
+                        <div class="w-full bg-[#081024] h-2 rounded-full overflow-hidden">
+                            <div id="otherShareBar" class="bg-purple-500 h-full rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side: Detailed tabular audit list -->
+            <div class="lg:col-span-8 cyber-panel rounded-2xl overflow-hidden">
+                <div class="px-8 py-5 border-b border-slate-900 flex justify-between items-center">
+                    <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Verified Contribution List / 金主明細</h3>
+                    <span class="text-[9px] text-slate-600 font-mono italic">監察院申報資料核對</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left font-mono">
+                        <thead class="text-[9px] text-slate-500 uppercase border-b border-slate-900">
+                            <tr>
+                                <th class="px-8 py-4">捐贈人 / 企業法人</th>
+                                <th class="px-8 py-4">關聯產業別</th>
+                                <th class="px-8 py-4 text-right">捐贈金額</th>
+                                <th class="px-8 py-4 text-right">申報時間</th>
+                            </tr>
+                        </thead>
+                        <tbody id="detailDonorsTable" class="divide-y divide-slate-900/50 text-xs">
+                            <!-- Dynamic Injection -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- [FOOTER & DATA CORE ENGINE] -->
+    <footer class="bg-[#02050e] border-t border-slate-950 text-slate-600 py-16 text-center text-[10px] tracking-widest space-y-2 mt-20">
+        <p>資料來源：監察院政治獻金公開查閱平臺</p>
+        <p>© 2026 金權筆記公民媒體專題報告 | 數據分析小組 A05 屆次</p>
+    </footer>
+
+    <script>
+        // Database Array representing all simulated data
+        const candidatesDb = [
+            {
+                name: "柯建銘",
+                party: "民主進步黨",
+                district: "新竹市第01選區",
+                totalRevenue: 51641147,
+                corporateShare: 52.12,
+                elected: true,
+                rankTotal: "01",
+                rankParty: "01",
+                rankDistrict: "01",
+                breakdown: { personal: 30.00, corporate: 52.12, party: 12.00, other: 5.88 },
+                donors: [
+                    { name: "昌益事業群 (營造開發)", industry: "營造開發業", amount: 3000000, date: "2024/01/10" },
+                    { name: "利晉工程股份有限公司", industry: "營造業", amount: 2000000, date: "2023/12/15" },
+                    { name: "仰德集團旗下士林電機", industry: "電機製造", amount: 1500000, date: "2023/11/20" },
+                    { name: "九昱建設股份有限公司", industry: "建築開發", amount: 1000000, date: "2023/12/05" }
+                ]
+            },
+            {
+                name: "王金平",
+                party: "中國國民黨",
+                district: "全國不分區",
+                totalRevenue: 44200000,
+                corporateShare: 48.50,
+                elected: true,
+                rankTotal: "02",
+                rankParty: "01",
+                rankDistrict: "01",
+                breakdown: { personal: 35.00, corporate: 48.50, party: 10.00, other: 6.50 },
+                donors: [
+                    { name: "長榮航空股份有限公司", industry: "民航運輸", amount: 2500000, date: "2024/01/05" },
+                    { name: "富邦金融控股公司", industry: "金融保險", amount: 2000000, date: "2023/12/28" },
+                    { name: "台灣水泥股份有限公司", industry: "基礎建材", amount: 1500000, date: "2023/11/14" },
+                    { name: "南山人壽保險", industry: "金融保險", amount: 1200000, date: "2023/12/10" }
+                ]
+            },
+            {
+                name: "傅崐萁",
+                party: "中國國民黨",
+                district: "花蓮縣選區",
+                totalRevenue: 38900000,
+                corporateShare: 62.15,
+                elected: true,
+                rankTotal: "03",
+                rankParty: "02",
+                rankDistrict: "01",
+                breakdown: { personal: 22.85, corporate: 62.15, party: 10.00, other: 5.00 },
+                donors: [
+                    { name: "洄瀾水泥開發集團", industry: "水泥採礦", amount: 3500000, date: "2023/11/02" },
+                    { name: "東台灣建設總會", industry: "建築營造", amount: 2800000, date: "2023/12/14" },
+                    { name: "遠東集團 (水泥事業)", industry: "基礎製造", amount: 1500000, date: "2024/01/03" },
+                    { name: "花東雙子星開發建設", industry: "土地開發", amount: 1200000, date: "2023/12/20" }
+                ]
+            },
+            {
+                name: "邱志偉",
+                party: "民主進步黨",
+                district: "高雄市第02選區",
+                totalRevenue: 38603507,
+                corporateShare: 55.03,
+                elected: true,
+                rankTotal: "04",
+                rankParty: "02",
+                rankDistrict: "01",
+                breakdown: { personal: 32.97, corporate: 55.03, party: 8.00, other: 4.00 },
+                donors: [
+                    { name: "高雄港都造船集團", industry: "重工業", amount: 2000000, date: "2024/01/12" },
+                    { name: "盛餘鋼鐵股份有限公司", industry: "金屬製造", amount: 1500000, date: "2023/11/30" },
+                    { name: "南台灣土地開發建設", industry: "建築開發", amount: 1200000, date: "2023/12/18" }
+                ]
+            },
+            {
+                name: "林志遠",
+                party: "無黨籍",
+                district: "臺中市第05選區",
+                totalRevenue: 6320000,
+                corporateShare: 15.00,
+                elected: false,
+                rankTotal: "41",
+                rankParty: "01",
+                rankDistrict: "03",
+                breakdown: { personal: 75.00, corporate: 15.00, party: 0.00, other: 10.00 },
+                donors: [
+                    { name: "台中在地小農合作社", industry: "農業與食品", amount: 300000, date: "2023/12/01" },
+                    { name: "大屯區社區發展協會", industry: "團體機構", amount: 200000, date: "2023/12/25" }
+                ]
+            }
+        ];
+
+        // Chart.js global reference
+        let trendChartObj = null;
+
+        // Navigation Controller (Seamless SPA transition)
+        function navigate(viewName) {
+            // Hide all views
+            document.querySelectorAll('.view-panel').forEach(view => {
+                view.classList.add('hidden');
+                view.classList.remove('block');
+            });
+            // Show targeted view
+            const targetView = document.getElementById('view-' + viewName);
+            if (targetView) {
+                targetView.classList.remove('hidden');
+                targetView.classList.add('block');
+            }
+
+            // Update Tab Selection indicators
+            document.querySelectorAll('nav button').forEach(btn => {
+                btn.classList.remove('active-tab');
+                btn.classList.add('text-slate-400');
+            });
+            const activeTab = document.getElementById('tab-' + viewName);
+            if (activeTab) {
+                activeTab.classList.add('active-tab');
+                activeTab.classList.remove('text-slate-400');
+            }
+
+            // If entering trends simulation, force render
+            if (viewName === 'trends') {
+                calculateSimulatorTrend();
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Helper formatting functions
+        function formatMoney(val) {
+            if (val >= 10000000) return (val / 10000000).toFixed(2) + " 千萬";
+            if (val >= 10000) return (val / 10000).toFixed(0) + " 萬";
+            return val.toLocaleString();
+        }
+
+        // Search action from landing page
+        function handleSearchFromLanding() {
+            const val = document.getElementById('searchInputLanding').value.trim();
+            document.getElementById('directorySearchInput').value = val;
+            navigate('directory');
+            applyFilters();
+        }
+
+        // Trigger query tags from landing page
+        function triggerQuickTag(tag) {
+            document.getElementById('directorySearchInput').value = tag;
+            navigate('directory');
+            applyFilters();
+        }
+
+        // Render candidates list based on query, party selection and sorting Order
+        function applyFilters() {
+            const query = document.getElementById('directorySearchInput').value.toLowerCase().trim();
+            const party = document.getElementById('partyFilter').value;
+            const sort = document.getElementById('sortOrder').value;
+
+            let result = [...candidatesDb];
+
+            // Keyword filter
+            if (query) {
+                result = result.filter(item => 
+                    item.name.toLowerCase().includes(query) || 
+                    item.party.toLowerCase().includes(query) || 
+                    item.district.toLowerCase().includes(query) ||
+                    (query.includes("營造") && item.corporateShare >= 50)
+                );
+            }
+
+            // Party filter
+            if (party !== "all") {
+                result = result.filter(item => item.party === party);
+            }
+
+            // Sorting mechanics
+            result.sort((a, b) => {
+                return sort === "desc" ? b.totalRevenue - a.totalRevenue : a.totalRevenue - b.totalRevenue;
+            });
+
+            renderDirectory(result);
+        }
+
+        // Render cards into Directory Container
+        function renderDirectory(list) {
+            const container = document.getElementById('candidatesList');
+            container.innerHTML = "";
+
+            if (list.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 text-slate-600 italic">
+                        無相符的政治獻金數據，請重新搜尋其他關鍵字。
+                    </div>
+                `;
+                return;
+            }
+
+            list.forEach(item => {
+                const isElectedBadge = item.elected 
+                    ? `<span class="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded">當選*</span>` 
+                    : `<span class="text-[10px] font-bold text-slate-500 bg-slate-500/10 border border-slate-500/20 px-2 py-0.5 rounded">落選</span>`;
+                
+                const partyBadgeClass = item.party === "民主進步黨" 
+                    ? "bg-green-500/10 text-green-400" 
+                    : (item.party === "中國國民黨" ? "bg-blue-500/10 text-blue-400" : "bg-slate-500/10 text-slate-400");
+
+                container.innerHTML += `
+                    <div class="cyber-panel p-6 rounded-xl flex flex-wrap md:flex-nowrap justify-between items-center">
+                        <div class="w-full md:w-1/4 space-y-2">
+                            <div class="flex items-center gap-2">
+                                ${isElectedBadge}
+                                <span class="text-[10px] px-2 py-0.5 rounded font-bold ${partyBadgeClass}">${item.party}</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-white">${item.name}</h3>
+                            <p class="text-xs text-slate-500 font-mono">${item.district}</p>
+                        </div>
+                        <div class="w-1/2 md:w-1/5 mt-4 md:mt-0">
+                            <p class="text-[9px] text-slate-500 uppercase tracking-wider font-bold">總申報金額</p>
+                            <p class="font-mono font-bold text-base text-slate-200">$${item.totalRevenue.toLocaleString()}</p>
+                        </div>
+                        <div class="w-1/2 md:w-1/5 mt-4 md:mt-0 text-center">
+                            <p class="text-[9px] text-slate-500 uppercase tracking-wider font-bold">企業背景捐贈比</p>
+                            <div class="w-24 h-1.5 bg-slate-950 mx-auto mt-2 rounded-full overflow-hidden">
+                                <div class="bg-amber-500 h-full" style="width: ${item.corporateShare}%"></div>
+                            </div>
+                            <p class="text-xs mt-1 font-bold font-mono text-amber-500">${item.corporateShare}%</p>
+                        </div>
+                        <div class="w-full md:w-auto mt-4 md:mt-0">
+                            <button onclick="selectAndViewCandidate('${item.name}')" class="w-full md:w-auto px-6 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-black rounded-lg tracking-wider transition">查看深度金主</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Select a candidate, compile database arrays, and populate View Details Page
+        function selectAndViewCandidate(name) {
+            const candidate = candidatesDb.find(item => item.name === name);
+            if (!candidate) return;
+
+            // Populate text elements
+            document.getElementById('activeName').innerText = candidate.name;
+            document.getElementById('activeDistrict').innerText = `${candidate.district} | 202X 立法委員候選人`;
+            document.getElementById('activeTotalRevenue').innerText = "$" + candidate.totalRevenue.toLocaleString();
+            
+            const badge = document.getElementById('activePartyBadge');
+            badge.innerText = candidate.party;
+            if (candidate.party === "民主進步黨") {
+                badge.className = "inline-block px-3 py-1 bg-green-500/10 text-green-400 border border-green-500/20 text-xs font-bold rounded-full mb-4";
+            } else if (candidate.party === "中國國民黨") {
+                badge.className = "inline-block px-3 py-1 bg-blue-500/10 text-blue-400 border border-blue-500/20 text-xs font-bold rounded-full mb-4";
+            } else {
+                badge.className = "inline-block px-3 py-1 bg-slate-500/10 text-slate-400 border border-slate-500/20 text-xs font-bold rounded-full mb-4";
+            }
+
+            // Compile ranking values
+            document.getElementById('rankTotal').innerText = `#${candidate.rankTotal}`;
+            document.getElementById('rankParty').innerText = `#${candidate.rankParty}`;
+            document.getElementById('rankDistrict').innerText = `#${candidate.rankDistrict}`;
+
+            // Compile Structural percentages
+            const b = candidate.breakdown;
+            document.getElementById('pShare').innerText = b.personal.toFixed(2) + "%";
+            document.getElementById('pShareBar').style.width = b.personal + "%";
+            
+            document.getElementById('cShare').innerText = b.corporate.toFixed(2) + "%";
+            document.getElementById('cShareBar').style.width = b.corporate + "%";
+            
+            document.getElementById('partyShare').innerText = b.party.toFixed(2) + "%";
+            document.getElementById('partyShareBar').style.width = b.party + "%";
+            
+            document.getElementById('otherShare').innerText = b.other.toFixed(2) + "%";
+            document.getElementById('otherShareBar').style.width = b.other + "%";
+
+            // Render details inside Table
+            const tbody = document.getElementById('detailDonorsTable');
+            tbody.innerHTML = "";
+            candidate.donors.forEach(donor => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-cyan-500/[0.02] transition">
+                        <td class="px-8 py-5 text-white font-bold">${donor.name}</td>
+                        <td class="px-8 py-5 text-slate-400 font-medium">${donor.industry}</td>
+                        <td class="px-8 py-5 text-right font-bold text-amber-500 font-mono">$${donor.amount.toLocaleString()}</td>
+                        <td class="px-8 py-5 text-right text-slate-500 text-[10px] font-mono">${donor.date}</td>
+                    </tr>
+                `;
+            });
+
+            // Redirect viewer directly to candidate profile
+            navigate('candidate');
+        }
+
+        // Simulator calculation engine (corresponds to buy-vs-rent asset accumulation)
+        function calculateSimulatorTrend() {
+            // Read UI Sliders inputs
+            const initialCapital = Number(document.getElementById('initialCapital').value);
+            const termExpenses = Number(document.getElementById('termExpenses').value);
+            const inflationRate = Number(document.getElementById('inflationRate').value) / 100;
+            const simulateTerms = Number(document.getElementById('simulateTerms').value);
+
+            const corporateGrowth = Number(document.getElementById('corporateGrowth').value) / 100;
+            const crowdfundingGrowth = Number(document.getElementById('crowdfundingGrowth').value) / 100;
+
+            // Render slider labels
+            document.getElementById('initialCapitalLabel').innerText = "NT$ " + formatMoney(initialCapital);
+            document.getElementById('termExpensesLabel').innerText = "NT$ " + formatMoney(termExpenses);
+            document.getElementById('corporateGrowthLabel').innerText = (corporateGrowth * 100).toFixed(1) + "%";
+            document.getElementById('crowdfundingGrowthLabel').innerText = (crowdfundingGrowth * 100).toFixed(1) + "%";
+
+            // Compile chronological cycle metrics
+            let labels = [];
+            let corporateRouteData = [];
+            let crowdfundingRouteData = [];
+
+            // Let's model a 4-year election cycle sequence
+            // Initial state (Year 0)
+            labels.push("第 0 屆 (起步期)");
+            corporateRouteData.push(Math.round(initialCapital));
+            crowdfundingRouteData.push(Math.round(initialCapital));
+
+            let currentCorpWarchest = initialCapital;
+            let currentCrowdWarchest = initialCapital;
+            let currentTermExpense = termExpenses;
+            let cumulativeCorpExpense = 0;
+            let cumulativeCrowdExpense = 0;
+
+            for (let term = 1; term <= simulateTerms; term++) {
+                labels.push(`第 ${term} 屆 (${term * 4}年)`);
+
+                // Election cycle expense inflated annually over 4 years
+                currentTermExpense *= Math.pow(1 + inflationRate, 4);
+
+                // Cumulative expenditures tally
+                cumulativeCorpExpense += currentTermExpense;
+                cumulativeCrowdExpense += currentTermExpense;
+
+                // Route A: Corporate sponsorship model (High growth return Stack)
+                // New corporate funding injected per term modeled as growth multiplier
+                currentCorpWarchest = (currentCorpWarchest * Math.pow(1 + corporateGrowth, 4)) - currentTermExpense;
+                
+                // Route B: Crowdfunding model (Sustained community stack)
+                currentCrowdWarchest = (currentCrowdWarchest * Math.pow(1 + crowdfundingGrowth, 4)) - currentTermExpense;
+
+                corporateRouteData.push(Math.round(currentCorpWarchest));
+                crowdfundingRouteData.push(Math.round(currentCrowdWarchest));
+            }
+
+            // Update UI details elements
+            document.getElementById('finalCorpFund').innerText = "NT$ " + formatMoney(currentCorpWarchest + cumulativeCorpExpense);
+            document.getElementById('finalCorpExpense').innerText = "NT$ " + formatMoney(cumulativeCorpExpense);
+            document.getElementById('corpFinalNet').innerText = "NT$ " + formatMoney(currentCorpWarchest);
+
+            document.getElementById('finalCrowdFund').innerText = "NT$ " + formatMoney(currentCrowdWarchest + cumulativeCrowdExpense);
+            document.getElementById('finalCrowdExpense').innerText = "NT$ " + formatMoney(cumulativeCrowdExpense);
+            document.getElementById('crowdFinalNet').innerText = "NT$ " + formatMoney(currentCrowdWarchest);
+
+            // Re-render chart trends
+            drawTrendsChart(labels, corporateRouteData, crowdfundingRouteData);
+        }
+
+        // Draw the simulation chart canvas beautifully
+        function drawTrendsChart(labels, corpData, crowdData) {
+            const ctx = document.getElementById('trendChart').getContext('2d');
+            
+            if (trendChartObj) {
+                trendChartObj.destroy();
+            }
+
+            // Create custom gradients for aesthetic transparency glow
+            const gradientCorp = ctx.createLinearGradient(0, 0, 0, 400);
+            gradientCorp.addColorStop(0, 'rgba(245, 158, 11, 0.25)');
+            gradientCorp.addColorStop(1, 'rgba(245, 158, 11, 0.0)');
+
+            const gradientCrowd = ctx.createLinearGradient(0, 0, 0, 400);
+            gradientCrowd.addColorStop(0, 'rgba(6, 182, 212, 0.25)');
+            gradientCrowd.addColorStop(1, 'rgba(6, 182, 212, 0.0)');
+
+            trendChartObj = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: '路線 A：企業主導型累積政治資本 (NTD)',
+                            data: corpData,
+                            borderColor: '#fbbf24',
+                            borderWidth: 3,
+                            backgroundColor: gradientCorp,
+                            fill: true,
+                            tension: 0.35,
+                            pointBackgroundColor: '#fbbf24',
+                            pointHoverRadius: 7
+                        },
+                        {
+                            label: '路線 B：群眾募資型累積政治資本 (NTD)',
+                            data: crowdData,
+                            borderColor: '#06b6d4',
+                            borderWidth: 3,
+                            backgroundColor: gradientCrowd,
+                            fill: true,
+                            tension: 0.35,
+                            pointBackgroundColor: '#06b6d4',
+                            pointHoverRadius: 7
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    scales: {
+                        y: {
+                            ticks: {
+                                color: '#64748b',
+                                callback: (val) => val / 10000 + ' 萬'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.03)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: '#64748b'
+                            },
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                color: '#f1f5f9',
+                                font: {
+                                    size: 11,
+                                    weight: 'bold'
+                                }
+                            }
+                        },
+                        tooltip: {
+                            padding: 12,
+                            backgroundColor: 'rgba(11, 22, 44, 0.95)',
+                            titleColor: '#fff',
+                            titleFont: { size: 13, weight: 'bold' },
+                            bodyColor: '#e2e8f0',
+                            borderColor: 'rgba(255, 255, 255, 0.08)',
+                            borderWidth: 1,
+                            callbacks: {
+                                label: (context) => {
+                                    return ` ${context.dataset.label.split('：')[0]}淨值: NT$ ${context.raw.toLocaleString()}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // On document load initialization sequence
+        window.onload = function () {
+            // Apply initial filters to render directory view
+            applyFilters();
+            // Default load Fu Kun-chi as pre-loaded dataset on Candidate detailed view
+            selectAndViewCandidate("傅崐萁");
+            // Direct user back to main landing view
+            navigate('landing');
+        };
+    </script>
+</body>
+</html>
